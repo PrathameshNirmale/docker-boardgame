@@ -4,28 +4,32 @@ on:
   push:
     branches: [main]
 
+env:
+  # Opt into Node 24 now to avoid the June/September disruptions
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Ensure you have this to avoid 'no such file' errors
+
       - name: Login to Docker Hub
-        uses: docker/login-action@v3 # Updated to v3 (most stable)
+        uses: docker/login-action@v4 # Upgrade to v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4 # Upgrade to v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4 # Upgrade to v4
 
       - name: Build and push
-        uses: docker/build-push-action@v5 # This is the action that does the work
+        uses: docker/build-push-action@v6 # Upgrade to v6 (likely current for Node 24 support)
         with:
+          context: . # Explicitly set the build context
           push: true
-          # This is where you use your dynamic tags
-          tags: |
-            prathamnirmale/boardgame:latest
-            prathamnirmale/boardgame:${{ github.sha }}
-            prathamnirmale/boardgame:v${{ github.run_number }}
+          tags: prathamnirmale/boardgame:latest
